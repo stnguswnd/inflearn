@@ -7,15 +7,23 @@ import { signIn } from "next-auth/react";
 export default function SigninPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
 
-    signIn("credentials", {
+    const result = await signIn("credentials", {
       email,
       password,
-      redirectTo: "/",
+      redirect: false,
     });
+
+    if (result?.error) {
+      setError("이메일 또는 비밀번호가 올바르지 않습니다.");
+    } else if (result?.ok) {
+      window.location.href = "/";
+    }
   };
 
   return (
@@ -27,6 +35,11 @@ export default function SigninPage() {
         onSubmit={handleSubmit}
         className="flex flex-col gap-2 min-w-[300px]"
       >
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            {error}
+          </div>
+        )}
         <label htmlFor="email">이메일</label>
         <input
           value={email}
